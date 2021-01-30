@@ -38,6 +38,7 @@ public class ExampleBookServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //manually parsing Json, not efficient
         JSONObject jsonRequest = new JSONObject(IOUtils.toString(request.getReader()));
         String title = jsonRequest.getString("title");
         String author = jsonRequest.getString("author");
