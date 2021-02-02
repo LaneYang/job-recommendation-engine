@@ -17,6 +17,10 @@ public class SearchServlet extends HttpServlet {
     double longitude = Double.parseDouble(request.getParameter("lon"));
 
     GithubClient githubClient = new GithubClient();
+    String itemString = githubClient.search(latitude,longitude,null);
+    //respond to our client
+    response.setContentType("application/json");
+    response.getWriter().print(itemString);
   }
 
   @Override
