@@ -1,7 +1,12 @@
 package com.laioffer.job.external;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laioffer.job.entity.Item;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
@@ -17,7 +22,7 @@ public class GithubClient {
   //set default search word if the user left it empty
   private static final String DEFAULT_KEYWORD = "developer";
 
-  public String search(double latitude, double longitude, String keyword) {
+  public List<Item> search(double latitude, double longitude, String keyword) {
     if (keyword == null) {
       keyword = DEFAULT_KEYWORD;
     }
@@ -30,24 +35,26 @@ public class GithubClient {
     //format the url using our template above
     String url = String.format(URL_TEMPLATE, keyword, latitude, longitude);
     CloseableHttpClient httpClient = HttpClients.createDefault();
-//create a response handler: handles response from github api and process it to our own client
-    ResponseHandler<String> responseHandler = (response) -> {
+    //create a response handler: handles response from github api and process it to our own client
+    ResponseHandler<List<Item>> responseHandler = (response) -> {
       if (response.getStatusLine().getStatusCode() != 200) {
-        return "";
+        return Collections.emptyList();
       }
 
       HttpEntity httpEntity = response.getEntity();
-      if(httpEntity ==null){
-        return "";
+      if (httpEntity == null) {
+        return Collections.emptyList();
       }
-      return EntityUtils.toString(httpEntity);
+     ObjectMapper objectMapper = new ObjectMapper();
+      return Arrays.asList(objectMapper.readValue(httpEntity.getContent(),Item[].class
+          ));
 
     };
     try {
-      return httpClient.execute(new HttpGet(url),responseHandler);
-    }catch (Exception e){
+      return httpClient.execute(new HttpGet(url), responseHandler);
+    } catch (Exception e) {
       e.printStackTrace();
     }
-    return "";
+    return Collections.emptyList();
   }
 }
