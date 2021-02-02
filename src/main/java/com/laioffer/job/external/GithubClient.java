@@ -2,6 +2,7 @@ package com.laioffer.job.external;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laioffer.job.entity.Item;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -35,26 +37,35 @@ public class GithubClient {
     //format the url using our template above
     String url = String.format(URL_TEMPLATE, keyword, latitude, longitude);
     CloseableHttpClient httpClient = HttpClients.createDefault();
-    //create a response handler: handles response from github api and process it to our own client
-    ResponseHandler<List<Item>> responseHandler = (response) -> {
-      if (response.getStatusLine().getStatusCode() != 200) {
-        return Collections.emptyList();
-      }
-
-      HttpEntity httpEntity = response.getEntity();
-      if (httpEntity == null) {
-        return Collections.emptyList();
-      }
-     ObjectMapper objectMapper = new ObjectMapper();
-      return Arrays.asList(objectMapper.readValue(httpEntity.getContent(),Item[].class
-          ));
-
-    };
+    ResponseHandler<List<Item>> responseHandler = new GithubResponseHandler();
     try {
       return httpClient.execute(new HttpGet(url), responseHandler);
     } catch (Exception e) {
       e.printStackTrace();
     }
     return Collections.emptyList();
+  }
+}
+
+class GithubResponseHandler implements ResponseHandler<List<Item>> {
+
+  @Override
+  public List<Item> handleResponse(HttpResponse httpResponse)
+      throws ClientProtocolException, IOException {
+
+    //create a response handler: handles response from github api and process it to our own client
+    if (httpResponse.getStatusLine().getStatusCode() != 200) {
+      return Collections.emptyList();
+    }
+
+    HttpEntity httpEntity = httpResponse.getEntity();
+    if (httpEntity == null) {
+      return Collections.emptyList();
+    }
+    ObjectMapper objectMapper = new ObjectMapper();
+    return Arrays.asList(objectMapper.readValue(httpEntity.getContent(), Item[].class
+    ));
+
+
   }
 }
