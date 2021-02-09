@@ -5,9 +5,11 @@ import com.laioffer.job.entity.Item;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -45,27 +47,47 @@ public class GithubClient {
     }
     return Collections.emptyList();
   }
-}
 
-class GithubResponseHandler implements ResponseHandler<List<Item>> {
+  private static void extractKeywords(List<Item> items) {
+    MonkeyLearnClient monkeyLearnClient = new MonkeyLearnClient();
+    List<String> descriptions = new ArrayList<>();
+    for (Item item : items) {
+      String description = item.getDescription().replace("·", " ");
+      descriptions.add(description);
 
-  @Override
-  public List<Item> handleResponse(HttpResponse httpResponse)
-      throws ClientProtocolException, IOException {
-
-    //create a response handler: handles response from github api and process it to our own client
-    if (httpResponse.getStatusLine().getStatusCode() != 200) {
-      return Collections.emptyList();
     }
 
-    HttpEntity httpEntity = httpResponse.getEntity();
-    if (httpEntity == null) {
-      return Collections.emptyList();
+    List<Set<String>> keywordList = monkeyLearnClient.extract(descriptions);
+    for (int i = 0; i < items.size(); i++) {
+      items.get(i).setKeywords(keywordList.get(i));
     }
-    ObjectMapper objectMapper = new ObjectMapper();
-    return Arrays.asList(objectMapper.readValue(httpEntity.getContent(), Item[].class
-    ));
+  }
+
+  private static class GithubResponseHandler implements ResponseHandler<List<Item>> {
+
+    @Override
+    public List<Item> handleResponse(HttpResponse httpResponse)
+        throws ClientProtocolException, IOException {
+
+      //create a response handler: handles response from github api and process it to our own client
+      if (httpResponse.getStatusLine().getStatusCode() != 200) {
+        return Collections.emptyList();
+      }
+
+      HttpEntity httpEntity = httpResponse.getEntity();
+      if (httpEntity == null) {
+        return Collections.emptyList();
+      }
+      ObjectMapper objectMapper = new ObjectMapper();
+//      return Arrays.asList(objectMapper.readValue(httpEntity.getContent(), Item[].class
+//      ));
+      List<Item> items = Arrays
+          .asList(objectMapper.readValue(httpEntity.getContent(), Item[].class));
+      extractKeywords(items);
+      return items;
 
 
+    }
   }
 }
+

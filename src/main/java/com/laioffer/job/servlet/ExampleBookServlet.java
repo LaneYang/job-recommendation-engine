@@ -2,9 +2,6 @@ package com.laioffer.job.servlet;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.laioffer.job.entity.ExampleBook;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
 
 
 import javax.servlet.ServletException;
@@ -22,30 +19,14 @@ public class ExampleBookServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    response.setContentType("application/json");
-    ObjectMapper objectMapper = new ObjectMapper();
-    ExampleBook testBook = new ExampleBook("痛并快乐着", "白岩松", "1.1.2021",
-        "usd", "人生", "chinese",
-        "123", (float) 20.35, 500);
-    response.getWriter().print(objectMapper.writeValueAsString(testBook));
-
-//    response.getWriter().print("This is the example book servlet");
-//    String keyword = request.getParameter("keyword");
-//    String category = request.getParameter("category");
-//    System.out.println("Keyword is:" + keyword);
-//    System.out.println("Category is" + category);
 //    response.setContentType("application/json");
-//    JSONObject json = new JSONObject();
-//    json.put("title", "Harry Potter and the Sorcerer's Stone");
-//    json.put("author", "JK Rowling");
-//    json.put("date", "October 1, 1998");
-//    json.put("price", 11.99);
-//    json.put("currency", "USD");
-//    json.put("pages", 309);
-//    json.put("series", "Harry Potter");
-//    json.put("language", "en_US");
-//    json.put("isbn", "0590353403");
-//    response.getWriter().print(json);
+//    ObjectMapper objectMapper = new ObjectMapper();
+//    ExampleBook testBook = new ExampleBook("痛并快乐着", "白岩松", "1.1.2021",
+//        "usd", "人生", "chinese",
+//        "123", (float) 20.35, 500);
+//    response.getWriter().print(objectMapper.writeValueAsString(testBook));
+
+
   }
 
   @Override

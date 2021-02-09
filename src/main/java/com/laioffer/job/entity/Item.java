@@ -8,18 +8,22 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 import java.util.Set;
+
 //unused fields in the response can be safely ignored
 //null fields can be skipped and not included.
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
 public class Item {
 
+  //github fields that we needs
   private String id;
   private String title;
   private String location;
   private String companyLogo;
   private String url;
   private String description;
+
+  //our own fields needed to implement further features
   private Set<String> keywords;
   private boolean favorite;
 
