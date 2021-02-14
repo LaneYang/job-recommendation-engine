@@ -1,9 +1,11 @@
 package com.laioffer.job.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laioffer.job.db.MySQLConnection;
 import com.laioffer.job.entity.Item;
-import com.laioffer.job.external.GithubClient;
+import com.laioffer.job.external.GitHubClient;
 import java.util.List;
+import java.util.Set;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
@@ -15,19 +17,26 @@ public class SearchServlet extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-   // response.getWriter().write("test done");
-    double latitude = Double.parseDouble(request.getParameter("lat"));
-    double longitude = Double.parseDouble(request.getParameter("lon"));
 
-    GithubClient githubClient = new GithubClient();
-    ////String itemString = githubClient.search(latitude,longitude,null);
-    List<Item> items = githubClient.search(latitude,longitude,null);
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.writeValue(response.getWriter(),items);
-    //respond to our client
+    String userId = request.getParameter("user_id");
+    double lat = Double.parseDouble(request.getParameter("lat"));
+    double lon = Double.parseDouble(request.getParameter("lon"));
 
+     MySQLConnection connection = new MySQLConnection();
+     Set<String> favoritedItemIds = connection.getFavoriteItemIds(userId);
+     connection.close();
+
+    GitHubClient client = new GitHubClient();
+    List<Item> items = client.search(lat, lon, null);
+
+     for (Item item : items) {
+           item.setFavorite(favoritedItemIds.contains(item.getId()));
+        }
+
+    ObjectMapper mapper = new ObjectMapper();
     response.setContentType("application/json");
-    ////response.getWriter().print(itemString);
+    response.getWriter().print(mapper.writeValueAsString(items));
+
   }
 
   @Override
