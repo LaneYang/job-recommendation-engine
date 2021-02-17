@@ -19,9 +19,10 @@ public class LogoutServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+    //false: get current session, if there is no session, will not create one
     HttpSession session = request.getSession(false);
     if (session != null) {
-      session.invalidate();
+      session.invalidate();//delete session from server memory
     }
 
     ObjectMapper mapper = new ObjectMapper();
